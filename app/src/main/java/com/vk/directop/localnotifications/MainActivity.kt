@@ -11,11 +11,22 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import com.vk.directop.localnotifications.ui.theme.LocalNotificationsTheme
+import kotlinx.coroutines.async
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.runBlocking
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         val service = CounterNotificationService(applicationContext)
+
+        var res1 = ""
+        runBlocking {
+            val result1 = async { networkCall1() }
+            val result2 = async { networkCall2() }
+
+            res1 = "${result1.await()}  ${result2.await()}"
+        }
         setContent {
             LocalNotificationsTheme {
 
@@ -24,13 +35,13 @@ class MainActivity : ComponentActivity() {
                     horizontalAlignment = Alignment.CenterHorizontally,
                     verticalArrangement = Arrangement.Center,
 
-                ){
+                    ) {
                     Button(onClick = {
                         service.showNotification(Counter.value)
                     }) {
                         Text(text = "Show notification")
                     }
-                    Greeting("Android Notification Service")
+                    Greeting("Android Notification Service $res1")
                 }
 
 
@@ -50,4 +61,14 @@ fun DefaultPreview() {
     LocalNotificationsTheme {
         Greeting("Android")
     }
+}
+
+suspend fun networkCall1(): Int {
+    delay(1000L)
+    return 0
+}
+
+suspend fun networkCall2(): Int {
+    delay(1000L)
+    return 1
 }
